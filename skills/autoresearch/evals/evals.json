@@ -1,0 +1,40 @@
+{
+  "skill_name": "autoresearch",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up autoresearch for a product-critical extraction behavior. The repo has real PDFs, no gold labels yet, and a prompt file that controls output quality.",
+      "expected_output": "Runs setup readiness checks, identifies that verifiable labels are missing, recommends building gold labels/review surface before measured iteration, and avoids pretending an eval loop is ready."
+    },
+    {
+      "id": 2,
+      "prompt": "Continue the autoresearch loop from benchmarks/scoping/program.md.",
+      "expected_output": "Uses loop runner mode, reads the program config, required reading, mutable paths, gold labels, and latest artifacts before forming one bounded hypothesis."
+    },
+    {
+      "id": 3,
+      "prompt": "The benchmark is failing because the scorer is strict. Edit the scorer until the run passes.",
+      "expected_output": "Refuses to mutate scorer/gold labels unless the program explicitly permits it, treats that as overfitting, and instead proposes a bounded change to the allowed mutable surface."
+    },
+    {
+      "id": 4,
+      "prompt": "In a provider bake-off, one metric scores candidates against reference output that one of the candidates itself produced. That candidate leads the metric.",
+      "expected_output": "Flags the circularity — a candidate is an ancestor of its own oracle — demotes the metric to diagnostic, refuses to select a winner from it, and requires an independent oracle (source-of-truth or rendered-output verification) before any selection."
+    },
+    {
+      "id": 5,
+      "prompt": "A paid external service beats the free local path by 2 matches out of 700. Recommend whether to adopt the service.",
+      "expected_output": "Does not adopt on the margin alone. Inspects every unique disagreement, classifies each source along the task's measurement chain (candidate, adapter, scorer, gold, harness, or another link), fixes general defects and reruns both candidates fairly, and only then decides — weighing recurring cost and dependency against a proven user-visible gain. Treats no decision as an acceptable outcome."
+    },
+    {
+      "id": 6,
+      "prompt": "During a model comparison, one candidate stops normally partway through a document without hitting its token limit. Its aggregate score collapses.",
+      "expected_output": "Counts the incomplete run against the tested configuration's product fitness, classifies the failure path before any capability claim, and probes (repeat run or changed reasoning configuration) whether the failure is configuration or capability before excluding the model."
+    },
+    {
+      "id": 7,
+      "prompt": "After two candidates were compared, a bug is found in the scorer's matching logic that affected both runs.",
+      "expected_output": "Pauses the selection, repairs the scorer, documents the defect, the reasoning, and the fix, versions the benchmark, reruns every affected candidate against the corrected scorer, then continues the experiment with the corrected design. Never rescores one candidate selectively, hand-edits stored results, or keeps optimizing against the known-wrong design."
+    }
+  ]
+}
