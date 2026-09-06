@@ -1,6 +1,6 @@
 ---
 name: autoresearch
-description: Run an existing autoresearch optimization loop from a program.md file, or set up a self-improving loop for a product-critical AI behavior when one does not exist yet.
+description: Autoresearch loop for a measured AI behavior. Run an existing optimization loop from a program.md file, or set up a self-improving loop for a product-critical AI behavior when one does not exist yet.
 argument-hint: [path-to-program.md]
 ---
 
@@ -80,66 +80,18 @@ You are an interactive guide helping the user set up a self-improving autoresear
 
 ## How to interact
 
-You are interactive and visual. Every phase starts with a clear header. You use ASCII boxes for dashboards, status indicators for progress, and opinionated inline guidance drawn from real experience building these loops.
-
-Format phase headers like:
-```
-═══════════════════════════════════════════════════
-  PHASE N · PHASE TITLE
-═══════════════════════════════════════════════════
-```
-
-Format status dashboards like:
-```
-╔══════════════════════════════════════════════════╗
-║  DASHBOARD TITLE                                 ║
-╠══════════════════════════════════════════════════╣
-║                                                  ║
-║  ✓ Criterion name               STATUS           ║
-║  ✗ Criterion name               STATUS           ║
-║  ○ Criterion name               PENDING          ║
-║                                                  ║
-╚══════════════════════════════════════════════════╝
-```
-
-Format opinionated lessons like:
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ [lesson text]                                   │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
+Setup is interactive: one decision per question, a clear header per phase,
+and a readiness scorecard the user can watch update. Render as the surface
+allows. The field lessons in
+[references/lessons-from-the-field.md](references/lessons-from-the-field.md)
+are the gotchas this setup exists to prevent; cite the relevant one at the
+phase where it applies instead of reproducing it.
 
 Use the agent's native clarification mechanism for every decision point when available. If it is not available, ask one concise question directly. Keep each question focused — one decision per question.
 
-## Phase 0 · Welcome + Understand the codebase
+## Phase 0 · Understand the codebase
 
-Before doing anything else, greet the user:
-
-```
-═══════════════════════════════════════════════════
-  AUTORESEARCH SETUP
-═══════════════════════════════════════════════════
-
-  Hey — welcome. This guide will help you set up
-  a self-improving optimization loop for the AI
-  behavior in your product.
-
-  If you haven't read the blog post behind this,
-  it covers the philosophy and a real case study:
-  → https://declankramper.substack.com/p/building-a-self-improving-agent-loop?r=o9m4n
-    (not required, but it helps)
-
-  Now I'll read your codebase to understand
-  what you're working with. Back in a moment.
-
-═══════════════════════════════════════════════════
-```
-
-Then silently read the codebase to understand:
+Read the codebase to understand:
 
 1. What the product does
 2. Where AI is used (look for LLM API calls, prompt files, agent configs, model invocations)
@@ -154,18 +106,7 @@ Read at minimum:
 
 Then present a short overview:
 
-```
-═══════════════════════════════════════════════════
-  PHASE 0 · CODEBASE UNDERSTANDING
-═══════════════════════════════════════════════════
-
-  Product: [one-sentence description]
-  Stack:   [languages, frameworks]
-  AI surfaces found: [count]
-
-  [bulleted list of AI-dependent behaviors found,
-   with file paths]
-```
+Show: product in one sentence, stack, the count of AI surfaces found, and each AI-dependent behavior with its file paths.
 
 If no AI surfaces are found, stop and explain that autoresearch requires a product with at least one AI-dependent behavior to optimize.
 
@@ -200,23 +141,7 @@ Ask these as clarification questions. For each criterion, use what you learned i
 
 After all 5 criteria are answered, show the full scorecard:
 
-```
-╔══════════════════════════════════════════════════╗
-║  AUTORESEARCH READINESS                          ║
-╠══════════════════════════════════════════════════╣
-║                                                  ║
-║  ✓ Product-critical AI behavior    PASS          ║
-║  ✓ Narrow enough to score          PASS          ║
-║  ✓ Real artifacts exist             PASS          ║
-║  ✗ Outputs verifiable              BLOCKED       ║
-║  ✓ Mutable surface is narrow       PASS          ║
-║                                                  ║
-║  Result: [GO / NO-GO / CONDITIONAL]              ║
-║                                                  ║
-║  [If NO-GO or CONDITIONAL: specific guidance     ║
-║   on what to do first before coming back]        ║
-╚══════════════════════════════════════════════════╝
-```
+Show the five criteria with PASS / BLOCKED / CONDITIONAL, the GO / NO-GO / CONDITIONAL result, and, when not GO, the specific thing to do first.
 
 ### Decision rules
 
@@ -224,67 +149,15 @@ After all 5 criteria are answered, show the full scorecard:
 - **4 PASS, 1 CONDITIONAL** → CONDITIONAL. Explain the gap, suggest a concrete fix, ask if they want to proceed anyway or fix it first. If the gap is "outputs verifiable" or "real artifacts exist," strongly recommend fixing first.
 - **3 or fewer PASS** → NO-GO. Stop and explain what's missing. Give them a concrete checklist of what to build/collect before coming back. This is a feature, not a failure — autoresearch on shaky ground wastes time.
 
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ Running autoresearch without verifiable data    │
-│ is the #1 mistake. The agent will optimize      │
-│ the score, but the score won't mean anything.   │
-│ You'll get 100% on garbage labels and ship      │
-│ something that doesn't work.                    │
-│                                                 │
-│ Put the work into building a real benchmark     │
-│ first. It's the unglamorous part. It's also     │
-│ the part that makes everything else work.       │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
-
 If NO-GO, end the session here with clear next steps. Do not proceed.
 
 ## Phase 2 · Identify the slice (interactive)
 
 Present the AI surfaces you found in Phase 0, ranked by risk and data availability:
 
-```
-═══════════════════════════════════════════════════
-  PHASE 2 · IDENTIFY YOUR RISKY SLICE
-═══════════════════════════════════════════════════
-
-  The best autoresearch target is:
-  HIGH risk (product fails if this fails)
-  + HAS data (real artifacts to benchmark against)
-  + NARROW scope (small mutable surface)
-
-  AI Surfaces Found:
-  ──────────────────────────────────────────────
-
-  1. [surface name] — [description]
-     Risk: HIGH │ Data: ✓ EXISTS │ Files: N
-
-  2. [surface name] — [description]
-     Risk: MED  │ Data: ✗ NONE  │ Files: N
-
-  ──────────────────────────────────────────────
-```
+Show each AI surface with its risk (product fails if this fails), whether real data exists, and the size of its mutable surface. The best target is high risk, has data, and is narrow.
 
 Ask which surface they want to target. Recommend the one with the best combination of high risk + existing data + narrow scope.
-
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ Pick the SMALLEST slice that delivers a core    │
-│ value prop and tests one core risk. Don't try   │
-│ to optimize the whole product. "Intake document │
-│ field extraction accuracy" is a good slice.     │
-│ "Make the AI better" is not.                    │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
 
 Then map the call path for the chosen slice:
 1. Product entrypoint (user action or API call that triggers the behavior)
@@ -341,39 +214,9 @@ This is where the user's domain knowledge matters most. Ask them:
 
 5. **What is your current baseline?** — If they've measured before, what's the current score? If not, we'll establish one during setup.
 
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ Watch the per-segment breakdown, not just the   │
-│ headline number. In one case, overall accuracy  │
-│ went up 5% while the weakest source segment got │
-│ WORSE. Without segment-level scoring, that      │
-│ regression was completely invisible. The         │
-│ headline number lies when your data isn't        │
-│ uniform.                                        │
-│                                                 │
-│ Add guardrails for your weakest segments.       │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
-
 After collecting answers, present the problem definition:
 
-```
-═══════════════════════════════════════════════════
-  PROBLEM DEFINITION
-═══════════════════════════════════════════════════
-
-  Slice:          [name]
-  Objective:      [what we're improving]
-  Primary metric: [metric] (currently: [baseline])
-  Target:         [threshold]
-  Guardrails:     [list]
-
-═══════════════════════════════════════════════════
-```
+Show the problem definition: slice, objective, primary metric with current baseline, target, guardrails.
 
 Ask the user to confirm.
 
@@ -407,28 +250,6 @@ Ask the user these remaining questions:
    - e.g., "Add schema validation rules"
    - e.g., "Restructure few-shot examples"
 
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ More agency requires more trust. More trust     │
-│ requires more context. When I first ran the     │
-│ loop, the agent could only edit the prompt.     │
-│ It found a cheap win: few-shot examples on 13   │
-│ rows. Hit 100%. Didn't generalize at all.       │
-│                                                 │
-│ When I widened the mutable surface (configs,    │
-│ tools, schemas) AND gave it design principles   │
-│ AND architectural context, it made real          │
-│ improvements that held across new data.         │
-│                                                 │
-│ Widen the surface. Raise the context. That's    │
-│ when the loop gets good.                        │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
-
 Generate the `program.md` file with all collected information. Present it to the user for review before writing.
 
 The program.md should follow [templates/program.md](templates/program.md). Read only that template for this step.
@@ -439,25 +260,7 @@ The program.md should follow [templates/program.md](templates/program.md). Read 
 
 Ask where the autoresearch folder should live in the repo:
 
-```
-═══════════════════════════════════════════════════
-  PHASE 5 · SET UP INFRASTRUCTURE
-═══════════════════════════════════════════════════
-
-  Where should the autoresearch folder go?
-
-  Recommended: [repo-root]/benchmarks/[slice-name]/
-
-  This creates:
-  benchmarks/
-    [slice-name]/
-      README.md              ← explains the benchmark
-      program.md             ← the program file we just built
-      autoresearch/
-        results.tsv          ← append-only experiment ledger
-        artifacts/           ← per-run mismatch artifacts
-        baselines/           ← baseline snapshots
-```
+Recommend `[repo-root]/benchmarks/[slice-name]/` holding `README.md`, `program.md`, and `autoresearch/` with `results.tsv` (append-only ledger), `artifacts/` (per-run mismatches), and `baselines/`.
 
 Present the recommended location and ask the user to confirm or change it.
 
@@ -472,51 +275,13 @@ Before creating the scaffold, verify:
 
 If any are missing, show a clear list:
 
-```
-╔══════════════════════════════════════════════════╗
-║  DATA VERIFICATION                               ║
-╠══════════════════════════════════════════════════╣
-║                                                  ║
-║  ✓ Prompt file exists          src/prompt.ts     ║
-║  ✓ Agent config exists         src/agent.ts      ║
-║  ✗ Gold labels missing         data/labels.json  ║
-║  ✓ Architecture doc exists     docs/spec.md      ║
-║                                                  ║
-║  Status: BLOCKED — gold labels not found         ║
-║                                                  ║
-║  You need labeled data before the loop can       ║
-║  score anything. Create labels at:               ║
-║  data/labels.json                                ║
-╚══════════════════════════════════════════════════╝
-```
+Show each prerequisite with its path and whether it exists; when blocked, name the missing file and where to create it.
 
 If all verified, proceed to create the scaffold.
 
 ### Suggest a review surface for labels
 
 If the gold label files are complex (nested JSON, many fields, cross-referenced values), recommend that the user build a visual review tool before starting the loop. This pays for itself immediately.
-
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ If you're reviewing labels manually and it's    │
-│ painful, build a tool. An HTML viewer, a        │
-│ browser-based annotation interface, a           │
-│ structured diff — whatever makes it easy to     │
-│ see what's right and what's wrong at a glance.  │
-│                                                 │
-│ Good labels are the foundation of the whole     │
-│ loop. If reviewing them is tedious, you'll      │
-│ cut corners and the labels will be wrong. If    │
-│ the labels are wrong, the loop optimizes        │
-│ toward wrong.                                   │
-│                                                 │
-│ Make the important thing easy.                  │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
 
 Concrete options to suggest:
 - **HTML preview** — a single-file viewer that renders label entries with source context side by side
@@ -551,63 +316,7 @@ Do not create a repo-local `.claude/skills/autoresearch` copy by default. This s
 
 Present the final summary:
 
-```
-═══════════════════════════════════════════════════
-  SETUP COMPLETE
-═══════════════════════════════════════════════════
-
-  Created:
-  ─────────────────────────────────────────────
-
-  [list of all files created with paths]
-
-  ─────────────────────────────────────────────
-
-  What you have now:
-  • A program.md defining your optimization target
-  • A benchmark folder structure for artifacts
-  • An append-only results ledger
-  • A /autoresearch slash command to run the loop
-
-  ─────────────────────────────────────────────
-
-  Next steps:
-  1. Review the program.md and adjust anything
-  2. If you don't have a benchmark runner yet,
-     build one that exercises your live AI behavior
-     and outputs mismatch artifacts
-  3. Run a baseline: execute the benchmark once
-     and record the scores in program.md
-  4. Start the loop:
-
-     /autoresearch [path-to-program.md]
-
-  ─────────────────────────────────────────────
-```
-
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠ LESSON FROM THE FIELD                        │
-│                                                 │
-│ Three things the model needs to self-improve:   │
-│                                                 │
-│ 1. A verifiable, vetted benchmark               │
-│    (you can't skip the manual review)           │
-│                                                 │
-│ 2. Scaffolding and structure to run the loop    │
-│    (that's what we just set up)                 │
-│                                                 │
-│ 3. Your specific domain knowledge               │
-│    (baked into the program file and design      │
-│     principles — keep updating these)           │
-│                                                 │
-│ The models are capable. What they need is       │
-│ structure and your judgment. That's the whole   │
-│ insight.                                        │
-│                                                 │
-│ — autoresearch in production                    │
-└─────────────────────────────────────────────────┘
-```
+Show every file created with its path; what exists now (program.md, benchmark folder, results ledger, the `/autoresearch` command); and the next steps: review program.md, build a benchmark runner if none exists, record a baseline in program.md, then run `/autoresearch [path-to-program.md]`.
 
 ## Anti-patterns to actively prevent
 
@@ -639,23 +348,7 @@ Keep questions focused. One decision per question. Don't ask compound questions.
 
 When finished (whether GO or NO-GO), report:
 
-```
-╔══════════════════════════════════════════════════╗
-║  AUTORESEARCH SETUP                              ║
-╠══════════════════════════════════════════════════╣
-║                                                  ║
-║  Status: [COMPLETE / BLOCKED]                    ║
-║  Slice:  [name or N/A]                           ║
-║  Metric: [metric or N/A]                         ║
-║  Files created: [count]                          ║
-║                                                  ║
-║  [If BLOCKED: what to do next]                   ║
-║  [If COMPLETE: how to run the first loop]        ║
-║                                                  ║
-╚══════════════════════════════════════════════════╝
-```
-
-
+Report status (COMPLETE or BLOCKED), slice, metric, files created, and either what to do next or how to run the first loop.
 
 ## Templates
 
