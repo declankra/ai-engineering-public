@@ -7,7 +7,7 @@ This shape comes from production loops where the AI behavior was narrow, benchma
 ```markdown
 # Autoresearch Program: [Slice Name]
 
-This Markdown file is human-owned. The agent may read it, but changes to the objective, guardrails, baseline, and mutable surface should come from a human decision.
+This Markdown file is human-owned. The agent may read it, but the objective, guardrails and mutable surface reflect owner intent. Changes to those decisions need authorization; recording a measured incumbent under the approved decision policy does not change them.
 
 ## Required Reading
 
@@ -16,7 +16,7 @@ Before making changes, read these files:
 1. `[path/to/spec]` — [what it covers]
 2. `[path/to/architecture-doc]` — [what it covers]
 3. `[path/to/implementation-file]` — [what it controls]
-4. `[path/to/gold-labels-or-expected-file]` — gold labels or expected output, read-only
+4. `[path/to/development-labels-or-rubric]` — development truth only; final-test labels stay outside optimizer context
 
 ## Objective
 
@@ -27,7 +27,7 @@ Before making changes, read these files:
 `[metric_name]` — [definition of what this metric measures]
 
 - Current baseline: [score or "pending first run"]
-- Target: [threshold]
+- Direction and target: [maximize/minimize, threshold and units]
 
 ### Shadow Diagnostics
 
@@ -63,6 +63,21 @@ Anchor cost materiality to the value the product delivers and the price charged 
 - **Valid outcomes:** winner · tie · no decision (measurement invalid) · no decision (resolution insufficient)
 - **Rerun policy:** [which changed dependencies invalidate a stored proof; benchmark spend buys durable information — never rerun for ceremony, never skip a needed rerun for cost]
 
+## Measurement Contract
+
+- **Question and population:** [unit of work, sampling frame and intended claim]
+- **Cases and splits:** [manifest/version, grouping and deduplication, development/validation/final test; exposure/access boundary]
+- **Grader:** [method/version, independent truth and calibration evidence]
+- **Measured runner:** [actual baseline/candidate/resume/final-confirmation commands]
+- **Identity and evidence:** [requested/observed model or endpoint, configuration versions, per-case output/trace/end-state/grade paths]
+- **Failure policy:** [retries, truncation, refusal, timeout, missing cases, completion denominator]
+- **Comparison policy:** [paired uncertainty, minimum useful change, quality non-inferiority tolerance, important slices]
+- **Resource allowance:** [authorized money/time/requests/rounds ceiling; confirmation reserve and stop admission]
+
+Use the target runner's existing schema. These fields may remain in prose unless
+its parser consumes them. Capability and price details come from current interface
+docs and measured runs, not a provider-specific default in this template.
+
 ## Design Principles
 
 These guide how the agent should think about changes. They come from real failure modes — not theory.
@@ -90,10 +105,13 @@ Keep this narrow. The tighter the mutable surface, the more interpretable each e
 
 ## Immutable Surface
 
-Files the agent must NEVER touch. These are the rules of the game.
+Measurement and protected product surfaces stay fixed during an experiment.
+If the instrument is wrong, open a separate recorded repair, version it and rerun
+all affected comparisons before selection. This does not authorize product changes
+outside the mutable surface.
 
-- `[path/to/gold-labels]` — benchmark truth, not up for debate
-- `[path/to/scorer]` — scoring logic must stay deterministic
+- `[path/to/gold-labels]` — versioned, independently reviewed benchmark truth
+- `[path/to/scorer-or-rubric]` — fixed grading semantics; deterministic assertions or calibrated judgment as appropriate
 - `[path/to/run-benchmark]` — benchmark execution semantics
 - `[path/to/business-logic]` — operations/persistence layer
 - `[path/to/workflow]` — orchestration, not the agent's concern
@@ -111,12 +129,16 @@ These are starting points, not a fixed plan. The agent should update this list b
 
 ## Stop Conditions
 
-- `[primary_metric]` >= [target] AND all guardrails pass
+- Declared objective target reached AND all guardrails pass; confirm on untouched data before claiming improvement
 - [N] consecutive experiments with no improvement
 - Any guardrail violation that can't be resolved without violating design principles
-- Budget exhausted (if applicable)
+- Resource allowance exhausted, including reserved confirmation capacity
+- Measurement invalid or unresolved consequential product decision
 
-## Current Baseline
+## Original Baseline and Current Incumbent
+
+Freeze the original baseline configuration and artifacts at [path]. Track the
+current incumbent separately; never replace the original comparison anchor.
 
 [Leave blank until first benchmark run. After running, record:]
 
@@ -174,7 +196,7 @@ The `AUTORESEARCH_CONFIG` JSON block is machine-readable. The loop runner extrac
 - `primaryMetric` / `targetMetric` — what to optimize and the goal
 - `defaultProjects` — which datasets or projects the runner should measure by default
 - `expectedFile` — optional expected output file for benchmarks that do not use per-project gold labels
-- `baseline` — current numbers to beat (updated after each kept experiment)
+- `baseline` — current incumbent numbers to beat (updated under the approved keep policy); original baseline remains frozen separately
 - `guardrails` — constraints with thresholds (keys should match guardrail names)
 - `focusArea` or `focusSegment` — the weakest segment that needs the most attention
 - `mutablePaths` / `immutablePaths` — what the agent can and cannot edit

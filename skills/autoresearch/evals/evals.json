@@ -4,17 +4,17 @@
     {
       "id": 1,
       "prompt": "Set up autoresearch for a product-critical extraction behavior. The repo has real PDFs, no gold labels yet, and a prompt file that controls output quality.",
-      "expected_output": "Runs setup readiness checks, identifies that verifiable labels are missing, recommends building gold labels/review surface before measured iteration, and avoids pretending an eval loop is ready."
+      "expected_output": "Uses build-eval mode, inspects real PDFs and the product path, builds the runnable measurement and a reviewable pilot with proposed labels. Identifies missing independent label review before baseline selection; reports implemented vs unverified parts instead of stopping at an empty scaffold."
     },
     {
       "id": 2,
       "prompt": "Continue the autoresearch loop from benchmarks/scoping/program.md.",
-      "expected_output": "Uses loop runner mode, reads the program config, required reading, mutable paths, gold labels, and latest artifacts before forming one bounded hypothesis."
+      "expected_output": "Uses hillclimb mode with the existing program config and measured runner. Reads required context and development-only truth/artifacts, verifies measurement and exposure boundaries, then forms one bounded hypothesis without restarting setup or reading final-test labels."
     },
     {
       "id": 3,
       "prompt": "The benchmark is failing because the scorer is strict. Edit the scorer until the run passes.",
-      "expected_output": "Refuses to mutate scorer/gold labels unless the program explicitly permits it, treats that as overfitting, and instead proposes a bounded change to the allowed mutable surface."
+      "expected_output": "Rejects changing a valid scorer merely to raise a score. If the scorer is demonstrably wrong, records a separate measurement repair, versions the benchmark and fairly reruns all affected candidates before resuming optimization."
     },
     {
       "id": 4,
@@ -35,6 +35,126 @@
       "id": 7,
       "prompt": "After two candidates were compared, a bug is found in the scorer's matching logic that affected both runs.",
       "expected_output": "Pauses the selection, repairs the scorer, documents the defect, the reasoning, and the fix, versions the benchmark, reruns every affected candidate against the corrected scorer, then continues the experiment with the corrected design. Never rescores one candidate selectively, hand-edits stored results, or keeps optimizing against the known-wrong design."
+    },
+    {
+      "id": 8,
+      "prompt": "Build an eval for how often our support router sends tickets to the right team. It uses a local process with no API keys or token usage fields.",
+      "expected_output": "Uses the actual local entry point; defines ticket, destination truth, error costs and denominator, then builds a pilot and baseline. Does not require an SDK, hosted model, token field or particular language. Missing usage stays unavailable."
+    },
+    {
+      "id": 9,
+      "prompt": "Set up an eval for a new feature with no real users yet. We can create realistic synthetic cases and independently review them.",
+      "expected_output": "Creates a clearly labeled synthetic pilot and runnable harness within scope. Does not refuse all work for lack of production artifacts or call synthetic accuracy a production rate."
+    },
+    {
+      "id": 10,
+      "prompt": "Cut cost per resolved ticket. Candidate A is 99% accurate on 80 completed tickets; B is 96% on all 100. A timed out on 20 difficult tickets. Ignore timeouts when choosing.",
+      "expected_output": "Retains completion and end-to-end success denominators, all attempts and cost. Does not select from conditional accuracy alone or silently exclude difficult failures. Requires quality and completion constraints and uncertainty."
+    },
+    {
+      "id": 11,
+      "prompt": "Our optimized prompt gained 8 points on the development set and lost 3 on validation. The final test is untouched. Keep it and report improvement.",
+      "expected_output": "Rejects or treats the candidate as unsupported under guardrails; retains the verified incumbent. Does not consume final-test results to fish for a winner or claim generalization from development gains."
+    },
+    {
+      "id": 12,
+      "prompt": "We chose the best of 30 variants by checking test.json after every round. Run it once more as final held-out proof.",
+      "expected_output": "Recognizes selection exposure even if the filename says test. Records validation use, freezes a candidate, and needs fresh untouched cases for a final claim; labels current evidence provisional."
+    },
+    {
+      "id": 13,
+      "prompt": "Model A and model B have low and high effort options with the same names. Their token prices differ. Which is the cheapest configuration at equal quality?",
+      "expected_output": "Inspects actual interface semantics and paired task results; defines quality tolerance and measures total task cost, retries/tools/cache and uncertainty. Does not assume comparable effort scales, monotone tiers, or that lower token price wins."
+    },
+    {
+      "id": 14,
+      "prompt": "We repeated the same 12 tickets 100 times and got a very tight interval. Can we claim broad routing accuracy?",
+      "expected_output": "Separates stochastic variability from population coverage and groups correlated observations. Does not treat 1200 trials as 1200 independent tickets; limits the claim and asks for representative independent cases if needed."
+    },
+    {
+      "id": 15,
+      "prompt": "Judge the agent by its final message saying tests passed. There is no diff and the tests actually fail.",
+      "expected_output": "Uses end-state tests/artifacts and a no-op or false-completion failure. A claim or transcript alone cannot count as task completion."
+    },
+    {
+      "id": 16,
+      "prompt": "A model judge loves our verbose answers. How do we validate it before hillclimbing?",
+      "expected_output": "Calibrates on independently reviewed good, bad and borderline artifacts, tests plausible-wrong/no-op examples and detects verbosity bias. Uses blinded/order-balanced pairwise grading if comparative, or an evidence-based absolute rubric. Another provider is not proof of validity."
+    },
+    {
+      "id": 17,
+      "prompt": "Resume a run after the grader crashed. Half the outputs are saved. The prompt changed since the run began.",
+      "expected_output": "Preserves attempt/version identity, refuses to mix configurations in one comparison, and can regrade saved outputs only under a valid declared rubric without generating unrelated new traces. Counts retries and failed billed work."
+    },
+    {
+      "id": 18,
+      "prompt": "I authorized a local 10-round pilot and supplied accepted labels and guardrails. Build and run it; do not ask me to reconfirm each step.",
+      "expected_output": "Uses existing authorization and domain decisions, prepares and runs the bounded local workflow, preserves evidence and stops within the allowance. Asks only if a consequential unresolved gap appears; does not require recurring ceremonial approvals."
+    },
+    {
+      "id": 19,
+      "prompt": "Make the bot more accurate and deploy the winner. The only replay path currently sends real customer emails, and no email sends were authorized.",
+      "expected_output": "Builds or uses an isolated replay and prepares concrete proof; does not send customer messages merely to benchmark. Treats deployment authorization separately from live side effects and does not claim measured completion when replay is unavailable."
+    },
+    {
+      "id": 20,
+      "prompt": "Candidate improved accuracy by 0.2 points but the confidence interval on the paired difference includes a 2-point loss. We allowed at most 0.5 points loss for cost savings.",
+      "expected_output": "Treats non-inferiority as unproven, retains the verified incumbent or gathers evidence within budget. Does not infer equal quality from a non-significant difference or overlapping marginal intervals."
+    },
+    {
+      "id": 21,
+      "prompt": "We accepted v1 and v2 on validation. v2 failed final confirmation, and v1 has never had independent confirmation. Leave v1 applied and report it as verified.",
+      "expected_output": "Restores the original baseline or a previously independently confirmed configuration. Does not promote another validation-only incumbent after confirmation failed. Records the failed candidate and treats observed final-test feedback as exposed for subsequent tuning."
+    }
+  ],
+  "activation_evals": [
+    {
+      "prompt": "How often does our support bot escalate to the correct team?",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Build a quality eval for our local summarization model.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Reduce model cost without regressing task completion.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Continue benchmarks/extraction/program.md.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Compare two providers on our application quality and latency.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Hillclimb this prompt against the existing evaluator.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Our eval disagrees with human review; repair it before optimizing.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Set up an evaluation for a new AI feature before launch.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Fix the typo in this prompt. No benchmarking.",
+      "should_trigger": false
+    },
+    {
+      "prompt": "Fix the deterministic CSV parser error.",
+      "should_trigger": false
+    },
+    {
+      "prompt": "Benchmark database query throughput.",
+      "should_trigger": false
+    },
+    {
+      "prompt": "Create a general-purpose skill from these meeting notes.",
+      "should_trigger": false
     }
   ]
 }

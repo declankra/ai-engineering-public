@@ -16,10 +16,10 @@ Broader context and write-ups live at [Kramper Engineering](https://kramperengin
 
 ### [autoresearch](./skills/autoresearch/)
 
-The scientific method applied to AI product development: a measured experiment
-loop for a product-critical AI behavior. Real inputs, trusted gold labels, one
-primary metric, bounded changes, keep-or-discard decisions - on repeat until a
-target is hit.
+Build trustworthy evaluations and improve AI behavior across models and APIs.
+`build-eval` turns a product question into a runnable baseline; `hillclimb` tests
+bounded changes against quality, cost or latency goals and confirms them on unseen
+cases. The skill adapts to existing SDKs, services, local processes and harnesses.
 
 Where it came from: a production loop that improved vendor quote extraction
 from 76% to 97% on real data. The full story, including where it failed:
