@@ -9,7 +9,7 @@ stays private. This repo is the public layer: when a method survives real
 deployments and measured results, the sanitized version lands here so you can
 install it and use it.
 
-Broader context and write-ups live at [dkBuilds](https://www.dkbuilds.co) and
+Broader context and write-ups live at [Kramper Engineering](https://kramperengineering.com) and
 [declankramper.com/writes](https://declankramper.com/writes).
 
 ## Skills
@@ -74,4 +74,4 @@ evals only when the skill routes them there.
 ## What's Coming
 
 More skills graduate here as they prove out in real deployments. Watch the
-repo or follow along at [dkBuilds](https://www.dkbuilds.co).
+repo or follow along at [Kramper Engineering](https://kramperengineering.com).
